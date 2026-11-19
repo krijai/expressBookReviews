@@ -6,14 +6,33 @@ const public_users = express.Router();
 
 
 public_users.post("/register", (req, res) => {
-    //Write your code here
-    return res.status(300).json({ message: "Yet to be implemented" });
+    const { username, password } = req.body;
+
+    // Validate username and password
+    if (!username || !password) {
+        return res.status(400).json({
+            message: "Username and password are required"
+        });
+    }
+
+    // Check if username already exists
+    if (isValid(username)) {
+        return res.status(409).json({
+            message: "Username already exists"
+        });
+    }
+
+    // Register new user
+    users.push({ username, password });
+
+    return res.status(201).json({
+        message: "User registered successfully"
+    });
 });
 
 // Get the book list available in the shop
 public_users.get('/', function (req, res) {
-    //Write your code here
-    return res.status(200).json(books);
+    return res.status(200).send(JSON.stringify(books, null, 2));
 });
 
 // Get book details based on ISBN
@@ -21,7 +40,7 @@ public_users.get('/isbn/:isbn', function (req, res) {
     const isbn = req.params.isbn;
 
     if (books[isbn]) {
-        return res.status(200).json(books[isbn]);
+        return res.status(200).send(JSON.stringify(books[isbn], null, 2));
     }
 
     return res.status(404).json({
@@ -38,7 +57,7 @@ public_users.get('/author/:author', function (req, res) {
         .map((key) => books[key]);
 
     if (filteredBooks.length > 0) {
-        return res.status(200).json(filteredBooks);
+        return res.status(200).send(JSON.stringify(filteredBooks, null, 2));
     }
 
     return res.status(404).json({
@@ -55,7 +74,7 @@ public_users.get('/title/:title', function (req, res) {
         .map((key) => books[key]);
 
     if (filteredBooks.length > 0) {
-        return res.status(200).json(filteredBooks);
+        return res.status(200).send(JSON.stringify(filteredBooks, null, 2));
     }
 
     return res.status(404).json({
@@ -65,8 +84,17 @@ public_users.get('/title/:title', function (req, res) {
 
 //  Get book review
 public_users.get('/review/:isbn', function (req, res) {
-    //Write your code here
-    return res.status(300).json({ message: "Yet to be implemented" });
+    const isbn = req.params.isbn;
+
+    if (books[isbn]) {
+        return res.status(200).send(
+            JSON.stringify(books[isbn].reviews, null, 2)
+        );
+    }
+
+    return res.status(404).json({
+        message: "Book not found"
+    });
 });
 
 module.exports.general = public_users;
